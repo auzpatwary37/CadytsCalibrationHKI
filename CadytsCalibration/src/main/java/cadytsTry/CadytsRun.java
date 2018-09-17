@@ -12,6 +12,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.network.Link;
 import org.matsim.api.core.v01.network.Network;
@@ -39,6 +40,8 @@ import org.matsim.core.scoring.functions.CharyparNagelAgentStuckScoring;
 import org.matsim.core.scoring.functions.CharyparNagelLegScoring;
 import org.matsim.core.scoring.functions.ScoringParameters;
 import org.matsim.core.scoring.functions.ScoringParametersForPerson;
+import org.matsim.counts.Counts;
+import org.matsim.counts.CountsReaderMatsimV1;
 import org.matsim.lanes.data.Lane;
 import org.matsim.lanes.data.LanesToLinkAssignment;
 import org.matsim.pt.transitSchedule.api.TransitLine;
@@ -79,7 +82,7 @@ public class CadytsRun {
 		config.removeModule("roadpricing");
 		TransitRouterFareDynamicImpl.distanceFactor = 0.034;
 		config.plans().setInputFile("data/populationHKI.xml");
-		config.plans().setInputFile("data/output_plans.xml.gz");
+		//config.plans().setInputFile("data/output_plans.xml.gz");
 		//config.plans().setInputFile("data/populationHKI.xml"); 
 		config.plans().setInputPersonAttributeFile("data/personAttributesHKI.xml");
 		config.plans().setSubpopulationAttributeName("SUBPOP_ATTRIB_NAME"); /* This is the default anyway. */
@@ -87,7 +90,7 @@ public class CadytsRun {
 		config.qsim().setUsePersonIdForMissingVehicleId(true);
 		config.qsim().setNumberOfThreads(16);
 		config.qsim().setStorageCapFactor(2);
-		config.qsim().setFlowCapFactor(0.9);
+		config.qsim().setFlowCapFactor(1.0);
 		config.global().setNumberOfThreads(23);
 		config.parallelEventHandling().setNumberOfThreads(7);
 		config.parallelEventHandling().setEstimatedNumberOfEvents((long) 1000000000);
@@ -132,12 +135,13 @@ public class CadytsRun {
 		//general Run Configuration
 		config.counts().setInputFile("data/ATC2016Counts.xml");
 		config.counts().setInputFile("data/ATCCountsPeakHourLink.xml");
-		config.controler().setLastIteration(100);
+		config.controler().setLastIteration(400);
 		config.controler().setOutputDirectory("output_CadytsTry");	
 
 		config.strategy().setFractionOfIterationsToDisableInnovation(0.8);
 		Scenario scenario = ScenarioUtils.loadScenario(config);
 		scenario.addScenarioElement(SignalsData.ELEMENT_NAME, new SignalsDataLoader(config).loadSignalsData());	
+		
 		
 		
 		//Modify Lane capacity
