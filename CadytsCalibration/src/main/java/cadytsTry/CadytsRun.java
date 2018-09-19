@@ -47,7 +47,6 @@ import org.matsim.pt.transitSchedule.api.TransitSchedule;
 import org.matsim.vehicles.Vehicles;
 import org.xml.sax.SAXException;
 
-
 import dynamicTransitRouter.DynamicRoutingModule;
 import dynamicTransitRouter.TransitRouterFareDynamicImpl;
 import dynamicTransitRouter.fareCalculators.ZonalFareXMLParserV2;
