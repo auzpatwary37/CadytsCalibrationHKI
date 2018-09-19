@@ -12,7 +12,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.network.Link;
 import org.matsim.api.core.v01.network.Network;
@@ -21,7 +20,7 @@ import org.matsim.api.core.v01.population.Person;
 import org.matsim.api.core.v01.population.PlanElement;
 import org.matsim.contrib.cadyts.general.CadytsConfigGroup;
 import org.matsim.contrib.cadyts.general.CadytsScoring;
-import org.matsim.contrib.signals.controler.SignalsModule;
+import org.matsim.contrib.signals.builder.SignalsModule;
 import org.matsim.contrib.signals.data.SignalsData;
 import org.matsim.contrib.signals.data.SignalsDataLoader;
 import org.matsim.core.config.Config;
@@ -40,22 +39,22 @@ import org.matsim.core.scoring.functions.CharyparNagelAgentStuckScoring;
 import org.matsim.core.scoring.functions.CharyparNagelLegScoring;
 import org.matsim.core.scoring.functions.ScoringParameters;
 import org.matsim.core.scoring.functions.ScoringParametersForPerson;
-import org.matsim.counts.Counts;
-import org.matsim.counts.CountsReaderMatsimV1;
-import org.matsim.lanes.data.Lane;
-import org.matsim.lanes.data.LanesToLinkAssignment;
+import org.matsim.lanes.Lane;
+import org.matsim.lanes.LanesToLinkAssignment;
 import org.matsim.pt.transitSchedule.api.TransitLine;
 import org.matsim.pt.transitSchedule.api.TransitRoute;
 import org.matsim.pt.transitSchedule.api.TransitSchedule;
 import org.matsim.vehicles.Vehicles;
 import org.xml.sax.SAXException;
 
+
 import dynamicTransitRouter.DynamicRoutingModule;
 import dynamicTransitRouter.TransitRouterFareDynamicImpl;
-import dynamicTransitRouter.fareCalculators.ZonalFareXMLParser;
+import dynamicTransitRouter.fareCalculators.ZonalFareXMLParserV2;
+import ust.hk.praisehk.metamodelcalibration.calibrator.ParamReader;
 
 public class CadytsRun {
-	@SuppressWarnings("deprecation")
+	//@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException {
 		Config config=ConfigUtils.createConfig();
 		ConfigUtils.loadConfig(config, "data/config_clean.xml");
@@ -67,6 +66,8 @@ public class CadytsRun {
 		String GVChange_NAME = "person_GV";
 		String GVFixed_NAME = "trip_GV";
 
+		
+		
 		Config configGV = ConfigUtils.createConfig();
 		ConfigUtils.loadConfig(configGV, "data/config_Ashraf.xml");
 		for (ActivityParams act: configGV.planCalcScore().getActivityParams()) {
@@ -78,6 +79,12 @@ public class CadytsRun {
 				config.planCalcScore().getScoringParameters(GVFixed_NAME).addActivityParams(act);
 			}
 		}
+		
+		ParamReader pReader=new ParamReader("input/subPopParamAndLimit.csv");
+		
+		pReader.SetParamToConfig(config, pReader.getInitialParam());
+		
+		
 		config.removeModule("emissions");
 		config.removeModule("roadpricing");
 		TransitRouterFareDynamicImpl.distanceFactor = 0.034;
@@ -154,7 +161,7 @@ public class CadytsRun {
 		
 		
 		Controler controler = new Controler(scenario);
-    	ZonalFareXMLParser busFareGetter = new ZonalFareXMLParser(scenario.getTransitSchedule());
+		ZonalFareXMLParserV2 busFareGetter = new ZonalFareXMLParserV2(scenario.getTransitSchedule());
 		SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
 		saxParser.parse("data/busFare.xml", busFareGetter);
 		// Add the signal module to the controller
