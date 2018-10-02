@@ -59,16 +59,14 @@ public class PCUVolumeAnalyzer extends VolumesAnalyzer implements TransitDriverS
 		}
 		int timeslot = this.getTimeSlotIndex(event.getTime());
 		if(this.enRoutePcu.containsKey(event.getVehicleId())) {
-			double pcu=0;
-			if(this.enRoutePcu.get(event.getVehicleId())!=null) {
-				pcu=this.enRoutePcu.get(event.getVehicleId());
-			}
+			double pcu=this.enRoutePcu.get(event.getVehicleId());
+			
 			volumes[timeslot]=volumes[timeslot]+(int)pcu;
 		}else {
 			volumes[timeslot]=volumes[timeslot]++;
 		}
 		
-		super.handleEvent(event);
+		//super.handleEvent(event);
 }
 	
 	
@@ -96,11 +94,40 @@ public class PCUVolumeAnalyzer extends VolumesAnalyzer implements TransitDriverS
 		}
 		return volumes;
 	}
+@Override
+public double[] getVolumesPerHourForLink(final Id<Link> linkId) {
+		
+		double[] volumes = new double[24];
+		
+		int[] pcuvolumesForLink = this.getPCUVolumesForLink(linkId);
+		if (pcuvolumesForLink == null) return volumes;
+
+		int slotsPerHour = (int)(3600.0 / this.timeBinSize);
+		for (int hour = 0; hour < 24; hour++) {
+			double time = hour * 3600.0;
+			for (int i = 0; i < slotsPerHour; i++) {
+				volumes[hour] += pcuvolumesForLink[this.getTimeSlotIndex(time)];
+				time += this.timeBinSize;
+			}
+		}
+		return volumes;
+	}
 	
 	public int[] getPCUVolumesForLink(final Id<Link> linkId) {	
 		return this.PCUlinks.get(linkId);
 	}
 	
+	@Override
+	public int[] getVolumesForLink(final Id<Link> linkId) {	
+		return this.PCUlinks.get(linkId);
+	}
+	
+	@Override
+	public void reset(final int iteration) {
+		this.PCUlinks.clear();
+		this.enRoutePcu.clear();
+		super.reset(iteration);
+	}
 }
 
 	

@@ -87,8 +87,8 @@ public class CadytsRun {
 		config.removeModule("emissions");
 		config.removeModule("roadpricing");
 		TransitRouterFareDynamicImpl.distanceFactor = 0.034;
-		config.plans().setInputFile("data/populationHKI.xml");
-		//config.plans().setInputFile("data/output_plans.xml.gz");
+		//config.plans().setInputFile("data/populationHKI.xml");
+		config.plans().setInputFile("data/output_plans.xml.gz");
 		//config.plans().setInputFile("data/populationHKI.xml"); 
 		config.plans().setInputPersonAttributeFile("data/personAttributesHKI.xml");
 		config.plans().setSubpopulationAttributeName("SUBPOP_ATTRIB_NAME"); /* This is the default anyway. */
@@ -126,7 +126,7 @@ public class CadytsRun {
 		cadytsConfig.setEndTime((int)config.qsim().getEndTime());
 		cadytsConfig.setFreezeIteration(Integer.MAX_VALUE);
 		cadytsConfig.setMinFlowStddev_vehPerHour(25);
-		cadytsConfig.setPreparatoryIterations(10);
+		cadytsConfig.setPreparatoryIterations(1);
 		cadytsConfig.setRegressionInertia(.95);
 		cadytsConfig.setStartTime(0);
 		cadytsConfig.setTimeBinSize(3600);
