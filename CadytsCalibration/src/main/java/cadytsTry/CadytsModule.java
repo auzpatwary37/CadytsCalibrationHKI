@@ -23,6 +23,7 @@ import org.matsim.counts.MatsimCountsReader;
 
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 import ust.hk.praisehk.metamodelcalibration.measurements.Measurement;
@@ -49,8 +50,7 @@ public class CadytsModule extends AbstractModule{
 			bind(Key.get(new TypeLiteral<Counts<Link>>(){}, Names.named("calibration"))).toProvider(CalibrationCountsProvider.class).in(Singleton.class);
 		}
 		
-		Measurements m=generateMeasurementsFromCount(new CalibrationCountsProvider().get());
-		bind(Measurements.class).annotatedWith(Names.named("CalibrationCounts")).toInstance(m);
+		bind(Measurements.class).annotatedWith(Names.named("CalibrationCounts")).toProvider(MeasurementsProvider.class).in(Singleton.class);
 		
 		bind(VolumesAnalyzer.class).to(PCUVolumeAnalyzer.class);
 		// In principle this is bind(Counts<Link>).to...  But it wants to keep the option of multiple counts, under different names, open.
@@ -97,6 +97,15 @@ public class CadytsModule extends AbstractModule{
 			new MatsimCountsReader(calibrationCounts).readFile(CountsFilename);
 	
 			return calibrationCounts;
+			
+		}
+	}
+	private static class MeasurementsProvider implements Provider<Measurements> {
+		@Inject @Named("calibration") Counts<Link> calibrationCounts;
+		
+		public Measurements get() {
+	
+			return generateMeasurementsFromCount(calibrationCounts);
 			
 		}
 	}
