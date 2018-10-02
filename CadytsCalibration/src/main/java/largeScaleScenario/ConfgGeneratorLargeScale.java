@@ -19,6 +19,8 @@ import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.ConfigWriter;
 import org.matsim.core.config.groups.PlanCalcScoreConfigGroup.ActivityParams;
 import org.matsim.core.config.groups.QSimConfigGroup.LinkDynamics;
+import org.matsim.core.config.groups.QSimConfigGroup.SnapshotStyle;
+import org.matsim.core.config.groups.QSimConfigGroup.VehiclesSource;
 import org.matsim.core.config.groups.StrategyConfigGroup.StrategySettings;
 import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule;
 import org.matsim.core.scenario.ScenarioUtils;
@@ -122,6 +124,9 @@ public class ConfgGeneratorLargeScale {
 		config.transitRouter().setExtensionRadius(200);
 		config.transitRouter().setSearchRadius(500);
 		config.travelTimeCalculator().setCalculateLinkToLinkTravelTimes(true);
+		
+		
+		
 		//saveNetworkTransitAndVehicleInformation("data/LargeScaleScenario/modeDetails.txt",config);
 		ParamReader pReader=new ParamReader("input/subPopParamAndLimit.csv");
 		

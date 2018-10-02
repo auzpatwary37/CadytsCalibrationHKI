@@ -14,6 +14,7 @@ import org.matsim.analysis.VolumesAnalyzer;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.network.Link;
+import org.matsim.api.core.v01.network.Network;
 import org.matsim.api.core.v01.population.Person;
 import org.matsim.contrib.cadyts.car.CadytsContext;
 
@@ -39,6 +40,8 @@ import org.matsim.counts.Counts;
 import cadyts.calibrators.analytical.AnalyticalCalibrator;
 import cadyts.measurements.SingleLinkMeasurement.TYPE;
 import cadyts.supply.SimResults;
+import ust.hk.praisehk.metamodelcalibration.measurements.Measurement;
+import ust.hk.praisehk.metamodelcalibration.measurements.Measurements;
 
 public class CadytsContextHKI implements CadytsContextI<Link>, StartupListener, IterationEndsListener, BeforeMobsimListener{
 	private final static Logger log = Logger.getLogger(CadytsContext.class);
@@ -57,6 +60,8 @@ public class CadytsContextHKI implements CadytsContextI<Link>, StartupListener, 
 	private EventsManager eventsManager;
 	private VolumesAnalyzer volumesAnalyzer;
 	private OutputDirectoryHierarchy controlerIO;
+	@Inject
+	private @Named("CalibrationCounts")Measurements calibrationMeasurements;
 
 	private PlansTranslatorBasedOnEvents plansTranslator;
 
@@ -139,6 +144,21 @@ public class CadytsContextHKI implements CadytsContextI<Link>, StartupListener, 
 //		}
 		
 		this.calibrator.afterNetworkLoading(this.simResults);
+		
+		//Create Measurements
+		Measurements m=this.calibrationMeasurements.clone();
+		Network net=event.getServices().getScenario().getNetwork();
+		for(Measurement mm:this.calibrationMeasurements.getMeasurements().values()) {
+			for(String timeId:mm.getVolumes().keySet()) {
+				Link l=net.getLinks().get(Id.createLinkId(mm.getId().toString()));
+				m.getMeasurements().get(mm.getId()).addVolume(timeId, this.simResults.getSimValue(l, this.calibrationMeasurements.getTimeBean().get(timeId).getFirst().intValue(), this.calibrationMeasurements.getTimeBean().get(timeId).getSecond().intValue(),TYPE.COUNT_VEH));
+			}
+			
+		}
+		
+		String filenameM = controlerIO.getIterationFilename(event.getIteration(), "Measurements_Compariosn.csv");
+		writeMeasurementsComparison(filenameM,this.calibrationMeasurements,m);
+		//---------------------------------------------------------------------------------------
 
 		// write some output
 		String filename = controlerIO.getIterationFilename(event.getIteration(), LINKOFFSET_FILENAME);
@@ -163,5 +183,24 @@ public class CadytsContextHKI implements CadytsContextI<Link>, StartupListener, 
 
 	private static boolean isActiveInThisIteration(final int iter, final Config config) {
 		return (iter > 0 && iter % config.counts().getWriteCountsInterval() == 0);
+	}
+	
+	public static void writeMeasurementsComparison(String fileLoc,Measurements realMeasurements,Measurements simMeasurements) {
+		try {
+			FileWriter fw=new FileWriter(new File(fileLoc),false);
+			fw.append("MeasurementId,timeBeanId,RealCount,currentSimCount\n");
+			for(Measurement m: realMeasurements.getMeasurements().values()) {
+				for(String timeBean:m.getVolumes().keySet()) {
+					
+					fw.append(m.getId()+","+timeBean+","+realMeasurements.getMeasurements().get(m.getId()).getVolumes().get(timeBean)+","+
+				simMeasurements.getMeasurements().get(m.getId()).getVolumes().get(timeBean)+"\n");
+					}
+			}
+		fw.flush();
+		fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

@@ -57,11 +57,11 @@ public class CalibrationRunLargeScale {
 			
 			
 			//Insert Gradient Calculator
-			//SimAndAnalyticalGradientCalculator gradientFactory=new SimAndAnalyticalGradientCalculator(config, storage, simRun, params, calibrator.getTrRadius()/2/100, "FD", i, false, pReader);
-			//params=calibrator.generateNewParam(sue, storage.getSimMeasurement(params), gradientFactory.getSimGradient(), gradientFactory.getAnaGradient(), MetaModel.GradientBased_III_MetaModelName);
+			SimAndAnalyticalGradientCalculator gradientFactory=new SimAndAnalyticalGradientCalculator(config, storage, simRun, calibrator.getTrRadius()/2/100, "FD", i, false, pReader);
+			params=calibrator.generateNewParam(sue, storage.getSimMeasurement(params), gradientFactory, MetaModel.GradientBased_III_MetaModelName);
 			
 			
-			params=calibrator.generateNewParam(sue, storage.getSimMeasurement(params), null, null, MetaModel.AnalyticalLinearMetaModelName);
+			//params=calibrator.generateNewParam(sue, storage.getSimMeasurement(params), null, null, MetaModel.AnalyticalLinearMetaModelName);
 						
 		}
 		
