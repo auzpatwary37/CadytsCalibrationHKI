@@ -6,10 +6,13 @@ import java.util.Map;
 import org.matsim.analysis.VolumesAnalyzer;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
+import org.matsim.api.core.v01.events.LinkEnterEvent;
 import org.matsim.api.core.v01.events.LinkLeaveEvent;
 import org.matsim.api.core.v01.events.TransitDriverStartsEvent;
 import org.matsim.api.core.v01.events.VehicleEntersTrafficEvent;
+import org.matsim.api.core.v01.events.handler.LinkEnterEventHandler;
 import org.matsim.api.core.v01.events.handler.TransitDriverStartsEventHandler;
+import org.matsim.api.core.v01.events.handler.VehicleEntersTrafficEventHandler;
 import org.matsim.api.core.v01.network.Link;
 import org.matsim.api.core.v01.network.Network;
 import org.matsim.core.api.experimental.events.EventsManager;
@@ -22,7 +25,7 @@ import com.google.inject.Inject;
  *
  */
 
-public class PCUVolumeAnalyzer extends VolumesAnalyzer implements TransitDriverStartsEventHandler{
+public class PCUVolumeAnalyzer extends VolumesAnalyzer implements VehicleEntersTrafficEventHandler, LinkEnterEventHandler,TransitDriverStartsEventHandler{
 	@Inject
 	private Scenario scenario;
 	
@@ -42,16 +45,20 @@ public class PCUVolumeAnalyzer extends VolumesAnalyzer implements TransitDriverS
 		this.maxSlotIndex = (this.maxTime/this.timeBinSize) + 1;
 	}
 	
+	@Override	
+	public void handleEvent(final VehicleEntersTrafficEvent event) {
+		if(this.scenario.getVehicles().getVehicles().get(event.getVehicleId())!=null) {
+			this.enRoutePcu.put(event.getVehicleId(), this.scenario.getVehicles().getVehicles().get(event.getVehicleId()).getType().getPcuEquivalents());
+		}
+	}
 	@Override
 	public void handleEvent(TransitDriverStartsEvent event) {
-		Double pcu=this.scenario.getTransitVehicles().getVehicles().get(event.getVehicleId()).getType().getPcuEquivalents();
-		this.enRoutePcu.put(event.getVehicleId(), pcu);
+		this.enRoutePcu.put(event.getVehicleId(), this.scenario.getTransitVehicles().getVehicles().get(event.getVehicleId()).getType().getPcuEquivalents());
 	}
-
 	
-	
+	//vehicles are counted if they just enter the link at that specific time step
 	@Override
-	public void handleEvent(final LinkLeaveEvent event) {
+	public void handleEvent(final LinkEnterEvent event) {
 		int[] volumes = this.PCUlinks.get(event.getLinkId());
 		if (volumes == null) {
 			volumes = new int[this.maxSlotIndex + 1]; // initialized to 0 by default, according to JVM specs
@@ -62,8 +69,6 @@ public class PCUVolumeAnalyzer extends VolumesAnalyzer implements TransitDriverS
 			double pcu=this.enRoutePcu.get(event.getVehicleId());
 			
 			volumes[timeslot]=volumes[timeslot]+(int)pcu;
-		}else {
-			volumes[timeslot]=volumes[timeslot]++;
 		}
 		
 		//super.handleEvent(event);
@@ -128,6 +133,8 @@ public double[] getVolumesPerHourForLink(final Id<Link> linkId) {
 		this.enRoutePcu.clear();
 		super.reset(iteration);
 	}
+
+	
 }
 
 	

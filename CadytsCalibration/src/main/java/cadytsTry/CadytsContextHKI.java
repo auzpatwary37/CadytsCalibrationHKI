@@ -168,6 +168,7 @@ public class CadytsContextHKI implements CadytsContextI<Link>, StartupListener, 
 		} catch (IOException e) {
 			log.error("Could not write link cost offsets!", e);
 		}
+		this.volumesAnalyzer.reset(event.getIteration());
 	}
 
 	/**

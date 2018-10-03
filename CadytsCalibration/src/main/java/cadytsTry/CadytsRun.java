@@ -94,10 +94,10 @@ public class CadytsRun {
 		config.plans().setSubpopulationAttributeName("SUBPOP_ATTRIB_NAME"); /* This is the default anyway. */
 		config.vehicles().setVehiclesFile("data/VehiclesHKI.xml");
 		config.qsim().setUsePersonIdForMissingVehicleId(true);
-		config.qsim().setNumberOfThreads(16);
+		config.qsim().setNumberOfThreads(20);
 		config.qsim().setStorageCapFactor(2);
 		config.qsim().setFlowCapFactor(1.0);
-		config.global().setNumberOfThreads(23);
+		config.global().setNumberOfThreads(20);
 		config.parallelEventHandling().setNumberOfThreads(7);
 		config.parallelEventHandling().setEstimatedNumberOfEvents((long) 1000000000);
 

@@ -41,7 +41,7 @@ public class SimPCUResults<Lint> implements SimResults<Link>{
 		}
 		double sum = 0. ;
 		for ( int ii=startHour; ii<=endHour; ii++ ) {
-			sum += values[startHour] ;
+			sum += values[ii] ;
 		}
 		switch(type){
 		case COUNT_VEH:
@@ -53,6 +53,7 @@ public class SimPCUResults<Lint> implements SimResults<Link>{
 		}
 
 	}
+	
 	
 	public double getHourlySimValue(final Id<Link> linkId, final int hour, final TYPE type) { // stopFacility or link
 
@@ -72,7 +73,7 @@ public class SimPCUResults<Lint> implements SimResults<Link>{
 		}
 		double sum = 0. ;
 		for ( int ii=startHour; ii<=endHour; ii++ ) {
-			sum += values[startHour] ;
+			sum += values[ii] ;
 		}
 		switch(type){
 		case COUNT_VEH:
