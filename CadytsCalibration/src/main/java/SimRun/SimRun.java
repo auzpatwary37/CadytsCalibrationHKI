@@ -121,7 +121,7 @@ public class SimRun {
 		
 		//add the cadyts config 
 		
-		config.addModule(cadytsConfig);
+		//config.addModule(cadytsConfig);
 		
 		//general Run Configuration
 		config.counts().setInputFile("data/ATC2016Counts.xml");
