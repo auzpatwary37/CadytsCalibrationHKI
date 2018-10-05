@@ -50,7 +50,19 @@ public class PCUVolumeAnalyzer extends VolumesAnalyzer implements VehicleEntersT
 		if(this.scenario.getVehicles().getVehicles().get(event.getVehicleId())!=null) {
 			this.enRoutePcu.put(event.getVehicleId(), this.scenario.getVehicles().getVehicles().get(event.getVehicleId()).getType().getPcuEquivalents());
 		}
+		int[] volumes = this.PCUlinks.get(event.getLinkId());
+		if (volumes == null) {
+			volumes = new int[this.maxSlotIndex + 1]; // initialized to 0 by default, according to JVM specs
+			this.PCUlinks.put(event.getLinkId(), volumes);
+		}
+		int timeslot = this.getTimeSlotIndex(event.getTime());
+		if(this.enRoutePcu.containsKey(event.getVehicleId())) {
+			double pcu=this.enRoutePcu.get(event.getVehicleId());
+			
+			volumes[timeslot]=volumes[timeslot]+(int)pcu;
+		}
 	}
+	
 	@Override
 	public void handleEvent(TransitDriverStartsEvent event) {
 		this.enRoutePcu.put(event.getVehicleId(), this.scenario.getTransitVehicles().getVehicles().get(event.getVehicleId()).getType().getPcuEquivalents());
