@@ -21,7 +21,7 @@
 	<module name="changeMode" >
 		<!-- Defines whether car availability is considered be considered or not. An agent has no car only if it has no license, or never access to a car. Default: true -->
 		<param name="ignoreCarAvailability" value="true" />
-		<!-- Defines the mode switch behavior. Possible values [Lorg.matsim.core.config.groups.ChangeModeConfigGroup$Behavior;@192d43ce Default: fromSpecifiedModesToSpecifiedModes. -->
+		<!-- Defines the mode switch behavior. Possible values [fromAllModesToSpecifiedModes, fromSpecifiedModesToSpecifiedModes] Default: fromSpecifiedModesToSpecifiedModes. -->
 		<param name="modeSwitchBehavior" value="fromSpecifiedModesToSpecifiedModes" />
 		<!-- Defines all the modes available, including chain-based modes, seperated by commas -->
 		<param name="modes" value="car,pt" />

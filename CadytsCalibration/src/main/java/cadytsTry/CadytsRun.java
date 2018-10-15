@@ -50,6 +50,7 @@ import org.xml.sax.SAXException;
 import dynamicTransitRouter.DynamicRoutingModule;
 import dynamicTransitRouter.TransitRouterFareDynamicImpl;
 import dynamicTransitRouter.fareCalculators.ZonalFareXMLParserV2;
+import running.RunUtils;
 import ust.hk.praisehk.metamodelcalibration.calibrator.ParamReader;
 
 public class CadytsRun {
@@ -87,7 +88,7 @@ public class CadytsRun {
 		config.removeModule("emissions");
 		config.removeModule("roadpricing");
 		TransitRouterFareDynamicImpl.distanceFactor = 0.034;
-		config.plans().setInputFile("data/populationHKI.xml");
+		config.plans().setInputFile("data/180.plans.xml.gz");
 		//config.plans().setInputFile("data/output_plans.xml.gz");
 		//config.plans().setInputFile("data/populationHKI.xml"); 
 		config.plans().setInputPersonAttributeFile("data/personAttributesHKI.xml");
@@ -96,32 +97,44 @@ public class CadytsRun {
 		config.qsim().setUsePersonIdForMissingVehicleId(true);
 		config.qsim().setNumberOfThreads(20);
 		config.qsim().setStorageCapFactor(2);
-		config.qsim().setFlowCapFactor(1.0);
+		config.qsim().setFlowCapFactor(1.1);
 		config.global().setNumberOfThreads(20);
 		config.parallelEventHandling().setNumberOfThreads(7);
 		config.parallelEventHandling().setEstimatedNumberOfEvents((long) 1000000000);
         config.counts().setAverageCountsOverIterations(1);
         config.counts().setWriteCountsInterval(1);
-       
+        config.controler().setFirstIteration(181);
+        config.controler().setLastIteration(400);
         
-		createStrategies(config, PersonChangeWithCar_NAME, 0.02, 0.015, 0.01, 0);
-		createStrategies(config, PersonChangeWithoutCar_NAME, 0.02, 0.015, 0.01, 0);
-		addStrategy(config, DefaultPlanStrategiesModule.DefaultStrategy.ReRoute.toString(), PersonChangeWithCar_NAME, 
-				0.02, 200);
-		addStrategy(config, DefaultPlanStrategiesModule.DefaultStrategy.TimeAllocationMutator_ReRoute.toString(), PersonChangeWithCar_NAME, 
-				0.025, 200);
-		addStrategy(config, DefaultPlanStrategiesModule.DefaultStrategy.ReRoute.toString(), PersonChangeWithoutCar_NAME, 
-				0.02, 200);
-		addStrategy(config, DefaultPlanStrategiesModule.DefaultStrategy.TimeAllocationMutator_ReRoute.toString(), PersonChangeWithoutCar_NAME, 
-				0.025, 200);
-		addStrategy(config, DefaultPlanStrategiesModule.DefaultStrategy.ReRoute.toString(), PersonFixed_NAME, 
-				0.03, 200);
-		addStrategy(config, DefaultPlanStrategiesModule.DefaultStrategy.ReRoute.toString(), GVFixed_NAME, 
-				0.03, 200);
 
-		createStrategies(config, PersonFixed_NAME, 0.03, 0.03, 0, 450);
-		createStrategies(config, GVChange_NAME, 0.03, 0.03, 0, 0);
-		createStrategies(config, GVFixed_NAME, 0.03, 0.03, 0, 450);
+		RunUtils.createStrategies(config, PersonChangeWithCar_NAME, 0.02, 0.01, 0.005, 0);
+		RunUtils.createStrategies(config, PersonChangeWithoutCar_NAME, 0.02, 0.01, 0.005, 0);
+		RunUtils.addStrategy(config, DefaultPlanStrategiesModule.DefaultStrategy.ChangeTripMode.toString(), PersonChangeWithCar_NAME, 
+				0.015, 130);
+		RunUtils.addStrategy(config, DefaultPlanStrategiesModule.DefaultStrategy.TimeAllocationMutator_ReRoute.toString(), PersonChangeWithCar_NAME, 
+				0.015, 130);
+		RunUtils.addStrategy(config, DefaultPlanStrategiesModule.DefaultStrategy.ChangeTripMode.toString(), PersonChangeWithCar_NAME, 
+				0.025, 50);
+		RunUtils.addStrategy(config, DefaultPlanStrategiesModule.DefaultStrategy.TimeAllocationMutator_ReRoute.toString(), PersonChangeWithCar_NAME, 
+				0.025, 50);
+		
+		RunUtils.addStrategy(config, DefaultPlanStrategiesModule.DefaultStrategy.ChangeTripMode.toString(), PersonChangeWithoutCar_NAME, 
+				0.015, 130);
+		RunUtils.addStrategy(config, DefaultPlanStrategiesModule.DefaultStrategy.TimeAllocationMutator_ReRoute.toString(), PersonChangeWithoutCar_NAME, 
+				0.015, 130);
+		RunUtils.addStrategy(config, DefaultPlanStrategiesModule.DefaultStrategy.ChangeTripMode.toString(), PersonChangeWithoutCar_NAME, 
+				0.025, 50);
+		RunUtils.addStrategy(config, DefaultPlanStrategiesModule.DefaultStrategy.TimeAllocationMutator_ReRoute.toString(), PersonChangeWithoutCar_NAME, 
+				0.025, 50);
+		
+		RunUtils.addStrategy(config, DefaultPlanStrategiesModule.DefaultStrategy.ReRoute.toString(), PersonFixed_NAME, 
+				0.015, 175);
+		RunUtils.addStrategy(config, DefaultPlanStrategiesModule.DefaultStrategy.ReRoute.toString(), GVFixed_NAME, 
+				0.015, 175);
+		
+		RunUtils.createStrategies(config, PersonFixed_NAME, 0.02, 0.01, 0, 215);
+		RunUtils.createStrategies(config, GVChange_NAME, 0.02, 0.01, 0, 0);
+		RunUtils.createStrategies(config, GVFixed_NAME, 0.02, 0.005, 0, 215);
 
 		//Create CadytsConfigGroup with defaultValue of everything
 		
