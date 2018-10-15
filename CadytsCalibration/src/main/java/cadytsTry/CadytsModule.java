@@ -10,6 +10,7 @@ import javax.inject.Singleton;
 
 import org.matsim.analysis.VolumesAnalyzer;
 import org.matsim.api.core.v01.Id;
+import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.network.Link;
 import org.matsim.contrib.cadyts.car.CadytsContext;
 
@@ -90,14 +91,23 @@ public class CadytsModule extends AbstractModule{
 	private static class CalibrationCountsProvider implements Provider<Counts<Link>> {
 		@Inject CountsConfigGroup config;
 		@Inject Config matsimConfig;
+		@Inject Scenario scenario;
 		@Override
 		public Counts<Link> get() {
 			Counts<Link> calibrationCounts = new Counts<>();
 			String CountsFilename = config.getCountsFileURL(matsimConfig.getContext()).getFile();
 			new MatsimCountsReader(calibrationCounts).readFile(CountsFilename);
-	
-			return calibrationCounts;
+			ArrayList<Id<Link>> linksToRemove=new ArrayList<>();
+			for(Id<Link>linkId:calibrationCounts.getCounts().keySet()) {
+				if(!scenario.getNetwork().getLinks().containsKey(linkId)) {
+					linksToRemove.add(linkId);
+				}
+			}
+			for(Id<Link>linkId:linksToRemove) {
+				calibrationCounts.getCounts().remove(linkId);
+			}
 			
+			return calibrationCounts;
 		}
 	}
 	private static class MeasurementsProvider implements Provider<Measurements> {
