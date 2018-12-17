@@ -39,7 +39,7 @@ public class PCUVolumeAnalyzer extends VolumesAnalyzer implements VehicleEntersT
 	@Inject
 	PCUVolumeAnalyzer(Network network, EventsManager eventsManager) {
 		super(3600, 24 * 3600 - 1, network);
-		this.PCUlinks = new HashMap<>((int) (network.getLinks().size() * 1.1), 0.95f);
+		this.PCUlinks = new HashMap<>();
 		eventsManager.addHandler(this);
 		this.timeBinSize = 3600;
 		this.maxTime = 24 * 3600 - 1;
@@ -60,7 +60,7 @@ public class PCUVolumeAnalyzer extends VolumesAnalyzer implements VehicleEntersT
 		if(this.enRoutePcu.containsKey(event.getVehicleId())) {
 			double pcu=this.enRoutePcu.get(event.getVehicleId());
 			
-			volumes[timeslot]=volumes[timeslot]+(int)pcu;
+			volumes[timeslot]=volumes[timeslot]+pcu;
 		}
 	}
 	
