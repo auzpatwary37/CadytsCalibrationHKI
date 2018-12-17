@@ -1,5 +1,6 @@
 package cadytsTry;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +33,7 @@ public class PCUVolumeAnalyzer extends VolumesAnalyzer implements VehicleEntersT
 	private final int timeBinSize;
 	private final int maxTime;
 	private final int maxSlotIndex;
-	private Map<Id<Link>, int[]> PCUlinks;
+	private Map<Id<Link>, double[]> PCUlinks;
 	private HashMap<Id<Vehicle>,Double> enRoutePcu=new HashMap<>();
 	
 	@Inject
@@ -50,9 +51,9 @@ public class PCUVolumeAnalyzer extends VolumesAnalyzer implements VehicleEntersT
 		if(this.scenario.getVehicles().getVehicles().get(event.getVehicleId())!=null) {
 			this.enRoutePcu.put(event.getVehicleId(), this.scenario.getVehicles().getVehicles().get(event.getVehicleId()).getType().getPcuEquivalents());
 		}
-		int[] volumes = this.PCUlinks.get(event.getLinkId());
+		double[] volumes = this.PCUlinks.get(event.getLinkId());
 		if (volumes == null) {
-			volumes = new int[this.maxSlotIndex + 1]; // initialized to 0 by default, according to JVM specs
+			volumes = new double[this.maxSlotIndex + 1]; // initialized to 0 by default, according to JVM specs
 			this.PCUlinks.put(event.getLinkId(), volumes);
 		}
 		int timeslot = this.getTimeSlotIndex(event.getTime());
@@ -71,16 +72,16 @@ public class PCUVolumeAnalyzer extends VolumesAnalyzer implements VehicleEntersT
 	//vehicles are counted if they just enter the link at that specific time step
 	@Override
 	public void handleEvent(final LinkEnterEvent event) {
-		int[] volumes = this.PCUlinks.get(event.getLinkId());
+		double[] volumes = this.PCUlinks.get(event.getLinkId());
 		if (volumes == null) {
-			volumes = new int[this.maxSlotIndex + 1]; // initialized to 0 by default, according to JVM specs
+			volumes = new double[this.maxSlotIndex + 1]; // initialized to 0 by default, according to JVM specs
 			this.PCUlinks.put(event.getLinkId(), volumes);
 		}
 		int timeslot = this.getTimeSlotIndex(event.getTime());
 		if(this.enRoutePcu.containsKey(event.getVehicleId())) {
 			double pcu=this.enRoutePcu.get(event.getVehicleId());
 			
-			volumes[timeslot]=volumes[timeslot]+(int)pcu;
+			volumes[timeslot]=volumes[timeslot]+pcu;
 		}
 		
 		//super.handleEvent(event);
@@ -98,7 +99,7 @@ public class PCUVolumeAnalyzer extends VolumesAnalyzer implements VehicleEntersT
 		
 		double[] volumes = new double[24];
 		
-		int[] pcuvolumesForLink = this.getPCUVolumesForLink(linkId);
+		double[] pcuvolumesForLink = this.getPCUVolumesForLink(linkId);
 		if (pcuvolumesForLink == null) return volumes;
 
 		int slotsPerHour = (int)(3600.0 / this.timeBinSize);
@@ -116,7 +117,7 @@ public double[] getVolumesPerHourForLink(final Id<Link> linkId) {
 		
 		double[] volumes = new double[24];
 		
-		int[] pcuvolumesForLink = this.getPCUVolumesForLink(linkId);
+		double[] pcuvolumesForLink = this.getPCUVolumesForLink(linkId);
 		if (pcuvolumesForLink == null) return volumes;
 
 		int slotsPerHour = (int)(3600.0 / this.timeBinSize);
@@ -130,13 +131,18 @@ public double[] getVolumesPerHourForLink(final Id<Link> linkId) {
 		return volumes;
 	}
 	
-	public int[] getPCUVolumesForLink(final Id<Link> linkId) {	
+	public double[] getPCUVolumesForLink(final Id<Link> linkId) {	
 		return this.PCUlinks.get(linkId);
 	}
 	
 	@Override
 	public int[] getVolumesForLink(final Id<Link> linkId) {	
-		return this.PCUlinks.get(linkId);
+		int[] outArray=new int[this.PCUlinks.get(linkId).length];
+		for(int i=0;i<this.PCUlinks.get(linkId).length;i++) {
+			outArray[i]=(int)this.PCUlinks.get(linkId)[i];
+		}
+		
+		return outArray; 
 	}
 	
 	@Override

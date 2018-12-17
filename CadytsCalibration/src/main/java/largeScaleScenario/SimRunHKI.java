@@ -43,7 +43,8 @@ public class SimRunHKI implements SimRun{
 		try {
 			saxParser = SAXParserFactory.newInstance().newSAXParser();
 			saxParser.parse("data/LargeScaleScenario/busFare.xml", busFareGetter);
-			controler.addOverridingModule(new DynamicRoutingModule(busFareGetter.get(),"data/LargeScaleScenario/mtr_lines_fares.csv","data/LargeScaleScenario/GMB.csv"));
+			controler.addOverridingModule(new DynamicRoutingModule(busFareGetter.get(), "fare/mtr_lines_fares.csv", 
+					"fare/GMB.csv", "fare/light_rail_fares.csv"));
 			
 		} catch (ParserConfigurationException e1) {
 			// TODO Auto-generated catch block

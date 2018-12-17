@@ -101,7 +101,7 @@ public class SimPCUResults<Lint> implements SimResults<Link>{
 			stringBuffer.append(VALUES);
 
 			boolean hasValues = false; // only prints stops with volumes > 0
-			int[] values = this.volumesAnalyzer.getPCUVolumesForLink(linkId);
+			double[] values = this.volumesAnalyzer.getPCUVolumesForLink(linkId);
 
 			for (int ii = 0; ii < values.length; ii++) {
 				hasValues = hasValues || (values[ii] > 0);

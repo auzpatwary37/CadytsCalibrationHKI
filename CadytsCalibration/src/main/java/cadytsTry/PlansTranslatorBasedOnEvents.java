@@ -163,7 +163,7 @@ VehicleEntersTrafficEventHandler, VehicleLeavesTrafficEventHandler {
 			selectedPlan.getCustomAttributes().put(STR_PLANSTEPFACTORY, planStepFactory);
 
 			// memorize the plan as being seen:
-			this.plansEverSeen.add(selectedPlan);
+			//this.plansEverSeen.add(selectedPlan);
 		}
 
 		return planStepFactory;

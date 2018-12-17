@@ -181,7 +181,8 @@ public class CadytsRun {
 		saxParser.parse("data/busFare.xml", busFareGetter);
 		// Add the signal module to the controller
 		controler.addOverridingModule(new SignalsModule());
-		controler.addOverridingModule(new DynamicRoutingModule(busFareGetter.get()));
+		controler.addOverridingModule(new DynamicRoutingModule(busFareGetter.get(), "fare/mtr_lines_fares.csv", 
+				"fare/GMB.csv", "fare/light_rail_fares.csv"));
 		controler.addOverridingModule(new CadytsModule());
 		controler.getConfig().controler().setOverwriteFileSetting(OverwriteFileSetting.overwriteExistingFiles);
 		
