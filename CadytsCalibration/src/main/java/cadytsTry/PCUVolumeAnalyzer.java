@@ -18,6 +18,7 @@ import org.matsim.api.core.v01.network.Link;
 import org.matsim.api.core.v01.network.Network;
 import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.vehicles.Vehicle;
+import org.matsim.vehicles.Vehicles;
 
 import com.google.inject.Inject;
 
@@ -35,6 +36,8 @@ public class PCUVolumeAnalyzer extends VolumesAnalyzer implements VehicleEntersT
 	private final int maxSlotIndex;
 	private Map<Id<Link>, double[]> PCUlinks;
 	private HashMap<Id<Vehicle>,Double> enRoutePcu=new HashMap<>();
+	private Vehicles vehicles;
+	private Vehicles transitVehicles;
 	
 	@Inject
 	PCUVolumeAnalyzer(Network network, EventsManager eventsManager) {
@@ -44,12 +47,25 @@ public class PCUVolumeAnalyzer extends VolumesAnalyzer implements VehicleEntersT
 		this.timeBinSize = 3600;
 		this.maxTime = 24 * 3600 - 1;
 		this.maxSlotIndex = (this.maxTime/this.timeBinSize) + 1;
+		vehicles=scenario.getVehicles();
+		transitVehicles=scenario.getTransitVehicles();
+	}
+	
+	public PCUVolumeAnalyzer(Network network,Vehicles vehicles,Vehicles transitVehicles, EventsManager eventsManager) {
+		super(3600, 24 * 3600 - 1, network);
+		this.PCUlinks = new HashMap<>();
+		eventsManager.addHandler(this);
+		this.timeBinSize = 3600;
+		this.maxTime = 24 * 3600 - 1;
+		this.maxSlotIndex = (this.maxTime/this.timeBinSize) + 1;
+		this.vehicles=vehicles;
+		this.transitVehicles=transitVehicles;
 	}
 	
 	@Override	
 	public void handleEvent(final VehicleEntersTrafficEvent event) {
-		if(this.scenario.getVehicles().getVehicles().get(event.getVehicleId())!=null) {
-			this.enRoutePcu.put(event.getVehicleId(), this.scenario.getVehicles().getVehicles().get(event.getVehicleId()).getType().getPcuEquivalents());
+		if(vehicles.getVehicles().get(event.getVehicleId())!=null) {
+			this.enRoutePcu.put(event.getVehicleId(), vehicles.getVehicles().get(event.getVehicleId()).getType().getPcuEquivalents());
 		}
 		double[] volumes = this.PCUlinks.get(event.getLinkId());
 		if (volumes == null) {
@@ -66,7 +82,7 @@ public class PCUVolumeAnalyzer extends VolumesAnalyzer implements VehicleEntersT
 	
 	@Override
 	public void handleEvent(TransitDriverStartsEvent event) {
-		this.enRoutePcu.put(event.getVehicleId(), this.scenario.getTransitVehicles().getVehicles().get(event.getVehicleId()).getType().getPcuEquivalents());
+		this.enRoutePcu.put(event.getVehicleId(), transitVehicles.getVehicles().get(event.getVehicleId()).getType().getPcuEquivalents());
 	}
 	
 	//vehicles are counted if they just enter the link at that specific time step
