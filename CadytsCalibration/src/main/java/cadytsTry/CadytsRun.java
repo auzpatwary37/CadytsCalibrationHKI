@@ -20,7 +20,7 @@ import org.matsim.api.core.v01.population.Person;
 import org.matsim.api.core.v01.population.PlanElement;
 import org.matsim.contrib.cadyts.general.CadytsConfigGroup;
 import org.matsim.contrib.cadyts.general.CadytsScoring;
-import org.matsim.contrib.signals.builder.SignalsModule;
+import org.matsim.contrib.signals.builder.Signals;
 import org.matsim.contrib.signals.data.SignalsData;
 import org.matsim.contrib.signals.data.SignalsDataLoader;
 import org.matsim.core.config.Config;
@@ -137,22 +137,7 @@ public class CadytsRun {
 		RunUtils.createStrategies(config, GVFixed_NAME, 0.02, 0.005, 0, 215);
 
 		//Create CadytsConfigGroup with defaultValue of everything
-		
-		CadytsConfigGroup cadytsConfig=new CadytsConfigGroup();
-		cadytsConfig.setEndTime((int)config.qsim().getEndTime());
-		cadytsConfig.setFreezeIteration(Integer.MAX_VALUE);
-		cadytsConfig.setMinFlowStddev_vehPerHour(25);
-		cadytsConfig.setPreparatoryIterations(10);
-		cadytsConfig.setRegressionInertia(.95);
-		cadytsConfig.setStartTime(0);
-		cadytsConfig.setTimeBinSize(3600);
-		cadytsConfig.setUseBruteForce(false);
-		cadytsConfig.setWriteAnalysisFile(true);
-		cadytsConfig.setVarianceScale(1.0);
-		
-		//add the cadyts config 
-		
-		config.addModule(cadytsConfig);
+		createAndAddCadytsConfig(config);
 		
 		//general Run Configuration
 		config.counts().setInputFile("data/ATC2016Counts.xml");
@@ -180,13 +165,36 @@ public class CadytsRun {
 		SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
 		saxParser.parse("data/busFare.xml", busFareGetter);
 		// Add the signal module to the controller
-		controler.addOverridingModule(new SignalsModule());
+		Signals.configure(controler);
 		controler.addOverridingModule(new DynamicRoutingModule(busFareGetter.get(), "fare/mtr_lines_fares.csv", 
 				"fare/GMB.csv", "fare/light_rail_fares.csv"));
 		controler.addOverridingModule(new CadytsModule());
 		controler.getConfig().controler().setOverwriteFileSetting(OverwriteFileSetting.overwriteExistingFiles);
 		
 		//add Cadyts Scoring
+		addCadytsScoring(controler, config);
+		controler.run();
+	}
+	
+	public static void createAndAddCadytsConfig(Config config) {
+		CadytsConfigGroup cadytsConfig=new CadytsConfigGroup();
+		cadytsConfig.setEndTime((int)config.qsim().getEndTime());
+		cadytsConfig.setFreezeIteration(Integer.MAX_VALUE);
+		cadytsConfig.setMinFlowStddev_vehPerHour(25);
+		cadytsConfig.setPreparatoryIterations(10);
+		cadytsConfig.setRegressionInertia(.95);
+		cadytsConfig.setStartTime(0);
+		cadytsConfig.setTimeBinSize(3600);
+		cadytsConfig.setUseBruteForce(false);
+		cadytsConfig.setWriteAnalysisFile(true);
+		cadytsConfig.setVarianceScale(1.0);
+		
+		//add the cadyts config 
+		
+		config.addModule(cadytsConfig);
+	}
+	
+	public static void addCadytsScoring(Controler controler, Config config) {
 		controler.setScoringFunctionFactory(new ScoringFunctionFactory() {
 			@Inject CadytsContextHKI cadytsContextHKI;
 			@Inject ScoringParametersForPerson parameters;
@@ -206,8 +214,6 @@ public class CadytsRun {
 				return scoringFunctionAccumulator;
 			}
 		}) ;
-		controler.run();
-		
 	}
 
 

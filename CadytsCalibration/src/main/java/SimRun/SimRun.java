@@ -8,7 +8,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.contrib.cadyts.general.CadytsConfigGroup;
-import org.matsim.contrib.signals.builder.SignalsModule;
+import org.matsim.contrib.signals.builder.Signals;
 import org.matsim.contrib.signals.data.SignalsData;
 import org.matsim.contrib.signals.data.SignalsDataLoader;
 import org.matsim.core.config.Config;
@@ -149,7 +149,7 @@ public class SimRun {
 		SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
 		saxParser.parse("data/busFare.xml", busFareGetter);
 		// Add the signal module to the controller
-		controler.addOverridingModule(new SignalsModule());
+		Signals.configure(controler);
 		controler.addOverridingModule(new DynamicRoutingModule(busFareGetter.get(), "fare/mtr_lines_fares.csv", 
 				"fare/GMB.csv", "fare/light_rail_fares.csv"));
 		controler.getConfig().controler().setOverwriteFileSetting(OverwriteFileSetting.overwriteExistingFiles);

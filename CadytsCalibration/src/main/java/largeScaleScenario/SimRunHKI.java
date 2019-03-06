@@ -8,7 +8,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.matsim.api.core.v01.Scenario;
-import org.matsim.contrib.signals.builder.SignalsModule;
+import org.matsim.contrib.signals.builder.Signals;
 import org.matsim.contrib.signals.data.SignalsData;
 import org.matsim.contrib.signals.data.SignalsDataLoader;
 import org.matsim.core.config.Config;
@@ -56,7 +56,7 @@ public class SimRunHKI implements SimRun{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		controler.addOverridingModule(new SignalsModule());
+		Signals.configure(controler);
 		controler.addOverridingModule(new AnaModelCalibrationModule(storage, sue,"LargeScaleOutput/Calibration/",params,true));
 		controler.getConfig().controler().setOverwriteFileSetting(OutputDirectoryHierarchy.OverwriteFileSetting.overwriteExistingFiles);
 		controler.run();
